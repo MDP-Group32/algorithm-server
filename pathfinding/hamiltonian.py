@@ -128,7 +128,7 @@ class HamiltonianSearch:
         print(f'Number of nodes: {n}')
         m = int(n*n - n - (n-1)) # total paths to calc from pt to pt (excluding from pt_a to pt_a and from pt_a to 0)
         print(f'Total paths to calculate: {m}')
-        perms = _permutate(n, True) # all permutations of visiting order of obstacles eg [[0, 1, 2, 3, 4, 5], [0, 1, 3, 2, 4, 5], ...]
+        perms = _permutate(n) # all permutations of visiting order of obstacles eg [[0, 1, 2, 3, 4, 5], [0, 1, 3, 2, 4, 5], ...]
         edges = [[0 for _ in range(n)] for _ in range(n)]
         todo = mp.Queue() # (r, c)
         done = mp.Queue() # (r, c, astar f cost)
