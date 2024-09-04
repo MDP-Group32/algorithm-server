@@ -166,8 +166,8 @@ TK_SCALE = 2
 MAP_WIDTH = 200 
 MAP_HEIGHT = 200
 GRID_WIDTH = 5 # for display on simulator
-SNAP_COORD = _DIST_STR # for cell snap (coords) 5. Max value < 1.5* min(DIST_BL, DIST_BR, ... DIST_FW)
-SNAP_THETA = 15 # for cell snap (theta) 15
+GRID_COORD = _DIST_STR # for cell grid (coords) 5. Max value < 1.5* min(DIST_BL, DIST_BR, ... DIST_FW)
+GRID_THETA = 15 # for cell grid (theta) 15
 
 # +-----------------+
 # | robot movements |
