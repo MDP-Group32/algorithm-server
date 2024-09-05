@@ -16,6 +16,7 @@ def convert_segments_to_commands(
     result = []
 
     GRID_CELL_CM = 10
+    # for each node in path
     for segment in segments:
         if segment.v == 1:
             if segment.s == -1:
