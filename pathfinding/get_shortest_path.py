@@ -2,8 +2,9 @@ from math import pi
 from pathfinding.hamiltonian import HamiltonianSearch
 from shared.constants import GRID_COORD
 from shared.enums import Direction
-from shared.models import AlgorithmInput, AlgorithmInputMode
+from shared.models import AlgorithmInput, AlgorithmInputMode, AlgorithmOutputLiveCommand
 from shared.types import Position
+from stm.commands import convert_segments_to_commands
 from world.obstacle import Obstacle
 from world.world import World
 
@@ -14,7 +15,7 @@ numeric_to_direction_map = {
     '4': Direction.WEST
 }
 
-def extract_obstacles_from_input(input_obstacles):
+def extract_obstacles_from_input(input_obstacles, algo_server_mode):
   """
   Helper function to convert input obstacles to `Obstacle` object accepted by the algorithm
   """
@@ -22,6 +23,10 @@ def extract_obstacles_from_input(input_obstacles):
 
   grid_pos_to_c_pos_multiplier = GRID_COORD #5
 
+  if algo_server_mode == AlgorithmInputMode.LIVE:
+    # Live mode uses 10cm grid format (so need to *2 to align with algo's 5cm grid format)
+    grid_pos_to_c_pos_multiplier *= 2
+  
   for obstacle in input_obstacles:
     obstacles.append(Obstacle(
       x=obstacle["x"] * grid_pos_to_c_pos_multiplier,
@@ -35,8 +40,9 @@ def get_shortest_path(algo_input: AlgorithmInput):
   algo_server_mode = algo_input["server_mode"]
 
   # Obstacles
-  obstacles = extract_obstacles_from_input(algo_input["value"]["obstacles"])
-
+  obstacles = extract_obstacles_from_input(algo_input["value"]["obstacles"], algo_server_mode)
+  for obstacle in obstacles:
+    print("Obstacles: ", obstacle.x, obstacle.y, obstacle.facing)
   # Start Position
   start_position = Position(x=0, y=0, theta=pi/2)
 
@@ -62,3 +68,36 @@ def get_shortest_path(algo_input: AlgorithmInput):
         simulator_algo_output.extend([Position(-1, -1, -2), Position(-1, -1, -1)])
 
     return simulator_algo_output
+  
+  elif algo_server_mode == AlgorithmInputMode.LIVE:
+    print("Min Perm: ", min_perm)
+    print("Paths: ", paths)
+    current_perm = 1
+    stm_commands = []
+
+    for path in paths:
+      commands = convert_segments_to_commands(path)
+      print("Commands: ", commands)
+      stm_commands.extend(commands)
+
+      # Add SNAP1 command after each path (from one obstacle to another) (For Raspberry Pi Team to know when to scan the image)
+      stm_commands.append([f"SNAP{min_perm[current_perm]}", commands[-1][1]])
+      current_perm += 1 # Increment by current_perm to access the next obstacle_id
+      
+    
+    algoOutputLiveCommands: list[AlgorithmOutputLiveCommand] = [] # Array of commands
+    for command in stm_commands:
+      algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
+        cat="control",
+        value=command[0],
+        end_position=command[1]
+      ))
+    
+    # Add FIN as the last command (For Raspberry Pi Team to know that the algorithm has ended)
+    algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
+      cat="control",
+      value="FIN",
+      end_position=algoOutputLiveCommands[-1].end_position
+    ))
+
+    return algoOutputLiveCommands

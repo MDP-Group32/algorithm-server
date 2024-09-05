@@ -1,4 +1,4 @@
-from shared.models import AlgorithmInput, AlgorithmInputMode, AlgorithmOutputSimulator
+from shared.models import AlgorithmOutputLive, AlgorithmInput, AlgorithmInputMode, AlgorithmOutputSimulator
 from pathfinding.get_shortest_path import get_shortest_path
 from pathfinding.hamiltonian import AlgoType
 
@@ -58,6 +58,31 @@ async def algorithm_simulator(algo_input: AlgorithmInput):
 
   return { "positions": positions, "runtime": "{:.4f} seconds".format(runtime) }
 
+@app.get("/algo/live/simple-test", response_model=AlgorithmOutputLive, tags=["Algorithm"])
+async def algo_live_test():
+  """To test algo and endpoint on the server in live mode"""
+  # Basic Mock Data
+  live_algo_input: AlgorithmInput = {
+    "cat": "obstacles",
+    "value": {
+      "obstacles": [
+        { "id": 1, "x": 15, "y": 10, "d": 4 }, # 10cm grid (x, y)
+        { "id": 2, "x": 1, "y": 18, "d": 2 }, # 10cm grid (x, y)
+      ],
+    },
+    "server_mode": AlgorithmInputMode.LIVE,
+    "algo_type": AlgoType.EXHAUSTIVE_ASTAR,
+  }
+  commands = get_shortest_path(live_algo_input)
+  
+  return { "commands": commands }
+
+@app.post("/algo/live", response_model=AlgorithmOutputLive, tags=["Algorithm"])
+async def algo_live(algo_input: AlgorithmInput):
+  """Main endpoint for live mode"""
+  commands = get_shortest_path(algo_input.model_dump())
+
+  return { "commands": commands }
 
 if __name__ == '__main__':
   mp.freeze_support() # Needed to run child processes (multiprocessing)

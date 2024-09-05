@@ -25,7 +25,6 @@ class AlgorithmInput(BaseModel):
   server_mode: Optional[AlgorithmInputMode] = AlgorithmInputMode.LIVE
   algo_type: Optional[AlgoType] = AlgoType.EXHAUSTIVE_ASTAR
 
-# Output
 class AlgorithmOutputSimulatorPosition(BaseModel):
   x: int # in cm
   y: int # in cm
@@ -34,3 +33,16 @@ class AlgorithmOutputSimulatorPosition(BaseModel):
 class AlgorithmOutputSimulator(BaseModel):
   positions: list[AlgorithmOutputSimulatorPosition]
   runtime: str
+
+class AlgorithmOutputLivePosition(BaseModel):
+  x: int # in cm
+  y: int # in cm
+  d: int # Robot Face -> 1: North; 2: South; 3: East; 4: West
+
+class AlgorithmOutputLiveCommand(BaseModel):
+  cat: str = "control"
+  value: str
+  end_position: AlgorithmOutputLivePosition
+
+class AlgorithmOutputLive(BaseModel):
+  commands: list[AlgorithmOutputLiveCommand]
