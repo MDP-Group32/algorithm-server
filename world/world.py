@@ -58,6 +58,8 @@ class World:
         return (
             -EDGE_ERR <= x <= MAP_WIDTH + EDGE_ERR
             and -EDGE_ERR <= y <= MAP_HEIGHT + EDGE_ERR
+            # -EDGE_ERR < x < MAP_WIDTH + EDGE_ERR
+            # and -EDGE_ERR < y < MAP_HEIGHT + EDGE_ERR
         )
     
     def is_valid_path(self, pos: Position, obstacles: List["Obstacle"]) -> bool:
@@ -100,12 +102,17 @@ class World:
 
         # For every obstacle, check if any of the 4 obstacle corners lies within the robot
         EXTRA_VIRTUAL_BOUNDARY = 0 # To increase the virtual boundary of the obstacle (in cm)
+        # EXTRA_VIRTUAL_BOUNDARY = 5 # To increase the virtual boundary of the obstacle (in cm)
         for obs in obstacles:
             # Obstacle x and y bounds
             o_btm = obs.y + EDGE_ERR - EXTRA_VIRTUAL_BOUNDARY
             o_left = obs.x + EDGE_ERR - EXTRA_VIRTUAL_BOUNDARY
             o_top = obs.y + OBSTACLE_WIDTH - EDGE_ERR + EXTRA_VIRTUAL_BOUNDARY
             o_right = obs.x + OBSTACLE_WIDTH - EDGE_ERR + EXTRA_VIRTUAL_BOUNDARY
+            # o_btm = obs.y
+            # o_left = obs.x
+            # o_top = obs.y + OBSTACLE_WIDTH
+            # o_right = obs.x + OBSTACLE_WIDTH
 
             # Return False if Robot 4 corners' (x, y) is inside the obstacle (x, y) boundary
             for cx, cy in r_corners:

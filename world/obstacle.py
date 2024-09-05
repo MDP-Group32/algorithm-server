@@ -11,6 +11,7 @@ from shared.types import Position
 
 
 class Obstacle:
+    #NOTE: For obstacle, the (x,y) position is always bottom left (agnostic of the direction it is facing)
     def __init__(
         self,
         x: float,
@@ -42,4 +43,6 @@ class Obstacle:
         }
 
         dx, dy, theta = adjustments[self.facing]
-        return Position(x + dx, y + dy, theta)
+        interaction_position = Position(x + dx, y + dy, theta)
+        print('interaction_position:', interaction_position)
+        return interaction_position

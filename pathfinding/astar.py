@@ -198,6 +198,7 @@ class AStar:
 
             if self._goal(node.c_pos):
                 logger.info(f'Found goal {end_node}')
+                # print(f'Found goal {end_node}')
                 return self._reconstruct(node) # AlgoOutput -> An array of `Node` from start to goal/end
 
             self.closed.append(tup) # add current node to explored nodes (already visited)
@@ -222,5 +223,6 @@ class AStar:
         while last:
             res.appendleft(last)
             last = last.parent
-
+        # for node in list(res):
+        #     print(node.pos, node.c_pos, ",")
         return list(res)

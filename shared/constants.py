@@ -91,6 +91,9 @@ PENALTY_STOP = 40
 MAX_THETA_ERR = math.pi / 12 # PI = 180 degrees, 180/12 = 15 degrees
 MAX_X_ERR = 5, 5  # L, R (Configurable: Change to edit the node boundaries)
 MAX_Y_ERR = 7.5, 35 # U, D (Configurable: Change to edit the node boundaries)
+#TODO: EDIT THIS
+# MAX_X_ERR = 5, 5  # L, R (Configurable: Change to edit the node boundaries)
+# MAX_Y_ERR = 5, 5 # U, D (Configurable: Change to edit the node boundaries)
 
 # +---------------------+
 # | obstacle dimensions |
@@ -98,7 +101,8 @@ MAX_Y_ERR = 7.5, 35 # U, D (Configurable: Change to edit the node boundaries)
 
 OBSTACLE_WIDTH = 10
 IMG_THICKNESS = 2
-EDGE_ERR = 0.1
+EDGE_ERR = 0.1 #TODO: Edit this
+# EDGE_ERR = 0.0
 CONE = [10, 10, 4, 40]
 
 # +--------------------+

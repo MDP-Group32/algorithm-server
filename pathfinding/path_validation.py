@@ -45,6 +45,7 @@ def has_collision(
     for wp in wps:
         # * is used to unpack
         pos = Position(*(start_vector + wp[0]*v_u + wp[1]*v_r), (start.theta + wp[2]) % (2*pi))
+        # if not world.is_valid_path(pos.alignToGrid(), obs):
         if not world.is_valid_path(pos, obs):
             return True
     return False
