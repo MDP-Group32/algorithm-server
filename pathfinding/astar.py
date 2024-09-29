@@ -57,9 +57,9 @@ class Node:
         self.h = h # curr to end (cost from current node to end) => h(n)
         self.f = g + h # total cost of path through n to goal => f(n) = g(n) + h(n)
 
-        self.v = v # prev motion's vert direction, -1: bwd, 1: fwd
-        self.s = s # prev motion's steering direction, -1: left, 0: straight, 1: fwd
-        self.d = d # dist
+        self.v = v # prev motion's vert direction, -1: bwd, 1: fwd to get to current node
+        self.s = s # prev motion's steering direction, -1: left, 0: straight, 1: right to get to current node
+        self.d = d # dist of prev motion to get to current node
 
         self.parent = parent
 

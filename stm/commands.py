@@ -16,9 +16,13 @@ def convert_segments_to_commands(
     result = []
 
     GRID_CELL_CM = 10
+    #TODO: Tune w STM Team forward left, forward right, reverse left, reverse right values to input
     # for each node in path
+    # The segment are nodes, and it contains information on how this node is reached
+    # Is it through a forward motion, backward motion, left turn, right turn, etc.
     for segment in segments:
         if segment.v == 1:
+            # PREVIOUSLY: robot move forward, and steered left (FORWARD LEFT)
             if segment.s == -1:
                 result.append([
                     "left,77,forward,0",
@@ -28,6 +32,7 @@ def convert_segments_to_commands(
                         d = convertThetatoNumericDirection(segment.pos.theta)
                     )
                 ])
+            # PREVIOUSLY: robot move forward, and steered straight (FORWARD)
             elif segment.s == 0:
                 result.append([
                     "center,0,forward," + str(int(segment.d)),
@@ -37,6 +42,7 @@ def convert_segments_to_commands(
                         d = convertThetatoNumericDirection(segment.pos.theta)
                     )
                 ])
+            # PREVIOUSLY: robot move forward, and steered right (FORWARD RIGHT)
             elif segment.s == 1:
                 result.append([
                     "right,102,forward,0",
@@ -47,6 +53,7 @@ def convert_segments_to_commands(
                     )
                 ])
         elif segment.v == -1:
+            # PREVIOUSLY: robot move backward, and steered left (REVERSE LEFT)
             if segment.s == -1:
                 result.append([
                     "left,111,reverse,0",
@@ -56,6 +63,7 @@ def convert_segments_to_commands(
                         d = convertThetatoNumericDirection(segment.pos.theta)
                     )
                 ])
+            # PREVIOUSLY: robot move backward, and steered straight (REVERSE)
             elif segment.s == 0:
                 result.append([
                     "center,0,reverse," + str(int(segment.d)),
@@ -65,6 +73,7 @@ def convert_segments_to_commands(
                         d = convertThetatoNumericDirection(segment.pos.theta)
                     )
                 ])
+            # PREVIOUSLY: robot move backward, and steered right (REVERSE RIGHT)
             elif segment.s == 1:
                 result.append([
                     "right,71,reverse,0",

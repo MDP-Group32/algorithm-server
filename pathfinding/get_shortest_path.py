@@ -84,7 +84,7 @@ def get_shortest_path(algo_input: AlgorithmInput):
       stm_commands.append([f"SNAP{min_perm[current_perm]}", commands[-1][1]])
       current_perm += 1 # Increment by current_perm to access the next obstacle_id
       
-    
+    print("STM Commands: ", stm_commands)
     algoOutputLiveCommands: list[AlgorithmOutputLiveCommand] = [] # Array of commands
     for command in stm_commands:
       algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
