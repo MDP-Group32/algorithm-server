@@ -42,6 +42,7 @@ def convert_segments_to_commands(
                         d = convertThetatoNumericDirection(segment.pos.theta)
                     )
                 ])
+            # The value here shold move the robot from (0,7,d=1) to (4,12,d=3)
             # PREVIOUSLY: robot move forward, and steered right (FORWARD RIGHT)
             elif segment.s == 1:
                 result.append([
