@@ -4,7 +4,7 @@ from shared.constants import GRID_COORD
 from shared.enums import Direction
 from shared.models import AlgorithmInput, AlgorithmInputMode, AlgorithmOutputLiveCommand
 from shared.types import Position
-from stm.commands import convert_segments_to_commands
+from stm.commands import convert_segments_to_commands, getFinalStmCommand
 from world.obstacle import Obstacle
 from world.world import World
 
@@ -87,9 +87,12 @@ def get_shortest_path(algo_input: AlgorithmInput):
     print("STM Commands: ", stm_commands)
     algoOutputLiveCommands: list[AlgorithmOutputLiveCommand] = [] # Array of commands
     for command in stm_commands:
+      print('Command[0]', command[0])
+      print('Command[0] edited', getFinalStmCommand(command[0]))
       algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
         cat="control",
-        value=command[0],
+        # value=command[0],
+        value=getFinalStmCommand(command[0]),
         end_position=command[1]
       ))
     

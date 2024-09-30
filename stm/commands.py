@@ -26,6 +26,7 @@ def convert_segments_to_commands(
             if segment.s == -1:
                 result.append([
                     "left,77,forward,0",
+                    # "FL000",
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
                         y = segment.pos.y // GRID_CELL_CM,
@@ -36,6 +37,7 @@ def convert_segments_to_commands(
             elif segment.s == 0:
                 result.append([
                     "center,0,forward," + str(int(segment.d)),
+                    # "FF" + str(int(segment.d)).zfill(3),
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
                         y = segment.pos.y // GRID_CELL_CM,
@@ -46,6 +48,7 @@ def convert_segments_to_commands(
             # PREVIOUSLY: robot move forward, and steered right (FORWARD RIGHT)
             elif segment.s == 1:
                 result.append([
+                    # "FR000",
                     "right,102,forward,0",
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
@@ -58,6 +61,7 @@ def convert_segments_to_commands(
             if segment.s == -1:
                 result.append([
                     "left,111,reverse,0",
+                    # "BL000",
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
                         y = segment.pos.y // GRID_CELL_CM,
@@ -68,6 +72,7 @@ def convert_segments_to_commands(
             elif segment.s == 0:
                 result.append([
                     "center,0,reverse," + str(int(segment.d)),
+                    # "RR" + str(int(segment.d)).zfill(3),
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
                         y = segment.pos.y // GRID_CELL_CM,
@@ -78,6 +83,7 @@ def convert_segments_to_commands(
             elif segment.s == 1:
                 result.append([
                     "right,71,reverse,0",
+                    # "BR000",
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
                         y = segment.pos.y // GRID_CELL_CM,
@@ -138,7 +144,6 @@ def convert_segments_to_commands(
         direction, distance = split_result[2], int(split_result[3])
         split_result[3] = str(_get_translated_straight_distance(direction, distance))
         resultCombined[i][0] = ",".join(split_result)
-
     return resultCombined
     
 def convertThetatoNumericDirection(theta):
@@ -165,3 +170,23 @@ def convertThetatoNumericDirection(theta):
         return 4
     else:
         return 1
+
+def getFinalStmCommand(originalCommand):
+    if originalCommand.upper().startswith("SNAP"):
+        return originalCommand
+    else:
+        originalCommandArray = originalCommand.split(",")
+        if originalCommandArray[0] == 'center' and originalCommandArray[2] == 'forward':
+            return 'FF' + originalCommandArray[3].zfill(3)
+        elif originalCommandArray[0] == 'center' and originalCommandArray[2] == 'reverse':
+            return 'RR' + originalCommandArray[3].zfill(3)
+        elif originalCommandArray[0] == 'left' and originalCommandArray[2] == 'forward':
+            return 'FL000'
+        elif originalCommandArray[0] == 'right' and originalCommandArray[2] == 'forward':
+            return 'FR000'
+        elif originalCommandArray[0] == 'left' and originalCommandArray[2] == 'reverse':
+            return 'BL000'
+        elif originalCommandArray[0] == 'right' and originalCommandArray[2] == 'reverse':
+            return 'BR000'
+    print('Unrecognized original STM Command: ', originalCommand)
+    return originalCommand
