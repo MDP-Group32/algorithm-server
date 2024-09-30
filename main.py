@@ -36,8 +36,8 @@ async def sample_algorithm_simulator():
     "cat": "obstacles",
     "value": {
       "obstacles": [
-        { "id": 1, "x": 30, "y": 20, "d": 4 }, # 5cm grid (x, y)
-        { "id": 2, "x": 2, "y": 36, "d": 2 }, # 5cm grid (x, y)
+        { "id": 1, "x": 15, "y": 10, "d": 4 }, # 10cm grid (x, y)
+        { "id": 2, "x": 1, "y": 18, "d": 2 }, # 10cm grid (x, y)
       ],
     },
     "server_mode": AlgorithmInputMode.SIMULATOR,
