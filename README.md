@@ -34,7 +34,11 @@ which python
 ```
 pip install -r requirements.txt
 ```
-5. Run the application:
+5. To run in development mode:
+```
+fastapi dev main.py
+```
+6. To run application on RPI:
 ```
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
@@ -53,15 +57,17 @@ python3 -m venv venv
 venv\Scripts\activate
 ```
 3. Verify that you are in the correct virtual env using
-```
-which python
-```
-- It should show a path like `algorithms-server/venv/bin/python`
+- Your path should be prefixed with `(venv)`
 4. Install dependencies:
 ```
 pip install -r requirements.txt
 ```
-5. Run the application:
+NOTE: If running on windows comment out: `uvloop==0.20.0` dependency because it is currently not supported on Windows.
+5. To run in development mode:
+```
+fastapi dev main.py
+```
+6. To run application on RPI:
 ```
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
