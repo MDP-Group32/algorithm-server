@@ -23,9 +23,9 @@ def extract_obstacles_from_input(input_obstacles, algo_server_mode):
 
   grid_pos_to_c_pos_multiplier = GRID_COORD #5
 
-  if algo_server_mode == AlgorithmInputMode.LIVE:
+  # if algo_server_mode == AlgorithmInputMode.LIVE:
     # Live mode uses 10cm grid format (so need to *2 to align with algo's 5cm grid format)
-    grid_pos_to_c_pos_multiplier *= 2
+  grid_pos_to_c_pos_multiplier *= 2
   
   for obstacle in input_obstacles:
     obstacles.append(Obstacle(
