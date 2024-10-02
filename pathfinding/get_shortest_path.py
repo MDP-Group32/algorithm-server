@@ -82,7 +82,7 @@ def get_shortest_path(algo_input: AlgorithmInput):
       stm_commands.extend(commands)
 
       # Add SNAP1 command after each path (from one obstacle to another) (For Raspberry Pi Team to know when to scan the image)
-      stm_commands.append([f"SNAP{min_perm[current_perm]}", commands[-1][1]])
+      stm_commands.append([f"ST00{min_perm[current_perm]}", commands[-1][1]])
       obstacle_orders.append(int(min_perm[current_perm]))
       current_perm += 1 # Increment by current_perm to access the next obstacle_id
       
