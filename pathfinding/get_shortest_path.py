@@ -101,7 +101,7 @@ def get_shortest_path(algo_input: AlgorithmInput):
     # Add FIN as the last command (For Raspberry Pi Team to know that the algorithm has ended)
     algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
       cat="control",
-      value="#",
+      value="#####",
       end_position=algoOutputLiveCommands[-1].end_position
     ))
 
