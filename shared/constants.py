@@ -31,11 +31,14 @@ ROBOT_VERT_OFFSET = (ROBOT_HEIGHT - ROBOT_ACTUAL_HEIGHT) / 2
 # Measure (Using Bottom Left of Robot)
 # Indoor (SCSE Lab) - Radians are estimation (Start-End)/number_of_points
 # usually take last path point as the final displacement
-WPS_FL_IN = [(1.5, 6.0, 0.2618), (2, 11.0, 0.5236), (0.5, 13.0, 0.7854), (-5.0, 20.0, 1.0472), (-13.0, 24.0, 1.3090), (-19.8, 25.3, 1.5707963267948966)]
-WPS_FR_IN = [(0, 11.0, -0.2618), (3.0, 24.0, -0.5236), (8.5, 33.5, -0.7854), (18.5, 43.0, -1.0472), (32.5, 40.5, -1.3090), (44.6, 51.3, -1.5707963267948966)]
-WPS_BR_IN = [(2.5, -15, 0.2618), (10.0, -28.0, 0.5236), (17, -35.0, 0.7854), (29.0, -42.0, 1.0472), (47.4, -44.0, 1.3090), (48.9, -43.1, 1.5707963267948966)]
-WPS_BL_IN = [(-1.75, -8.0, -0.2618), (-5.0, -14.0, -0.5236), (-9.25, -18.5, -0.7854), (-15.5, -22, -1.0472), (-23.5, -24.5, -1.3090), (-29, -22.5, -1.5707963267948966)]
-
+# WPS_FL_IN = [(1.5, 6.0, 0.2618), (2, 11.0, 0.5236), (0.5, 13.0, 0.7854), (-5.0, 20.0, 1.0472), (-13.0, 24.0, 1.3090), (-19.8, 25.3, 1.5707963267948966)]
+# WPS_FR_IN = [(0, 11.0, -0.2618), (3.0, 24.0, -0.5236), (8.5, 33.5, -0.7854), (18.5, 43.0, -1.0472), (32.5, 40.5, -1.3090), (44.6, 51.3, -1.5707963267948966)]
+# WPS_BR_IN = [(2.5, -15, 0.2618), (10.0, -28.0, 0.5236), (17, -35.0, 0.7854), (29.0, -42.0, 1.0472), (47.4, -44.0, 1.3090), (48.9, -43.1, 1.5707963267948966)]
+# WPS_BL_IN = [(-1.75, -8.0, -0.2618), (-5.0, -14.0, -0.5236), (-9.25, -18.5, -0.7854), (-15.5, -22, -1.0472), (-23.5, -24.5, -1.3090), (-29, -22.5, -1.5707963267948966)]
+WPS_FL_IN = [(-0.64, 7.23, 0.2618), (-2.56, 14.44, 0.5236), (-6.40, 16.99, 0.7854), (-13.43, 20.91, 1.0472), (-16.10, 23.54, 1.3090), (-19.8, 25.3, 1.5707963267948966)]
+WPS_FR_IN = [(0.81, 6.71, -0.2618), (2.425, 15.79, -0.5236), (9.7, 35.07, -0.7854), (22.63, 41.78, -1.0472), (38.8, 49.32, -1.3090), (44.6, 51.3, -1.5707963267948966)]
+WPS_BR_IN = [(22.38, -4.90, 0.2618), (34.53, -12.73, 0.5236), (41.57, -20.57, 0.7854), (46.04, -26.93, 1.0472), (48.6, -36.72, 1.3090), (48.9, -43.1, 1.5707963267948966)]
+WPS_BL_IN = [(-0.9613, -5.475, -0.2618), (-3.2042, -11.315, -0.5236), (-6.7289, -15.695, -0.7854), (-12.1761, -18.25, -1.0472), (-16.3415, -20.075, -1.3090), (-29, -22.5, -1.5707963267948966)]
 # TODO: Measure (Using Bottom Left of Robot)
 # Outdoor (SCSE Corridor)
 # usually take last path point as the final displacement
@@ -89,11 +92,11 @@ DIST_BR = WPS_BR[-1][0], WPS_BR[-1][1], _circum(BR_A, BR_B)/4
 
 PENALTY_STOP = 40
 MAX_THETA_ERR = math.pi / 12 # PI = 180 degrees, 180/12 = 15 degrees
-MAX_X_ERR = 5, 5  # L, R (Configurable: Change to edit the node boundaries)
-MAX_Y_ERR = 7.5, 35 # U, D (Configurable: Change to edit the node boundaries)
-#TODO: EDIT THIS
 # MAX_X_ERR = 5, 5  # L, R (Configurable: Change to edit the node boundaries)
-# MAX_Y_ERR = 5, 5 # U, D (Configurable: Change to edit the node boundaries)
+# MAX_Y_ERR = 7.5, 35 # U, D (Configurable: Change to edit the node boundaries)
+#TODO: EDIT THIS
+MAX_X_ERR = 5, 5  # L, R (Configurable: Change to edit the node boundaries)
+MAX_Y_ERR = 5, 5 # U, D (Configurable: Change to edit the node boundaries)
 
 # +---------------------+
 # | obstacle dimensions |
@@ -156,7 +159,7 @@ BR_Y_BOUND = [OBSTACLE_WIDTH/2 + ROBOT_HEIGHT,
               OBSTACLE_WIDTH/2 + (BR_B*BACKWARDS_A_B_MULTIPLIER) + ROBOT_WIDTH/2 - ROBOT_VERT_OFFSET]
 
 ROBOT_BTM_LEFT_CIRCLE_RAD = 2 # indicates bottom left of the robot footprint (used in algorithms/simulator)
-ROBOT_MIN_CAMERA_DIST = 20
+ROBOT_MIN_CAMERA_DIST = 25
 
 # -------- deprecated --------
 ROBOT_TURNING_RADIUS = 25
