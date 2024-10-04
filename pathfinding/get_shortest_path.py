@@ -75,6 +75,7 @@ def get_shortest_path(algo_input: AlgorithmInput):
     current_perm = 1
     stm_commands = []
     obstacle_orders = []
+    android_final_coordinates = 'ROBOT:'
 
     for path in paths:
       commands = convert_segments_to_commands(path)
@@ -86,17 +87,26 @@ def get_shortest_path(algo_input: AlgorithmInput):
       obstacle_orders.append(int(min_perm[current_perm]))
       current_perm += 1 # Increment by current_perm to access the next obstacle_id
       
-    print("STM Commands: ", stm_commands)
+    # print("STM Commands: ", stm_commands)
     algoOutputLiveCommands: list[AlgorithmOutputLiveCommand] = [] # Array of commands
     for command in stm_commands:
-      print('Command[0]', command[0])
-      print('Command[0] edited', getFinalStmCommand(command[0]))
+      final_stm_command = getFinalStmCommand(command[0])
+      if final_stm_command == 'FF000':
+        continue
+      # print('Command[0]', command[0])
+      # print('Command[0] edited', getFinalStmCommand(command[0]))
       algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
         cat="control",
         # value=command[0],
-        value=getFinalStmCommand(command[0]),
+        value=final_stm_command,
         end_position=command[1]
       ))
+      # print('Command', command[1])
+      # x1,y1.d1;x2,y2.d2;...
+      final_x, final_y, final_direction = command[1]
+      formatted_output = f"{final_x[1]},{final_y[1]}.{final_direction[1]};"
+      # print('Formatted output', formatted_output)
+      android_final_coordinates += formatted_output
     
     # Add FIN as the last command (For Raspberry Pi Team to know that the algorithm has ended)
     algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
@@ -104,5 +114,5 @@ def get_shortest_path(algo_input: AlgorithmInput):
       value="#####",
       end_position=algoOutputLiveCommands[-1].end_position
     ))
-
-    return algoOutputLiveCommands, obstacle_orders
+    # print('android2', android_final_coordinates)
+    return algoOutputLiveCommands, obstacle_orders, android_final_coordinates

@@ -73,15 +73,16 @@ async def algo_live_test():
     "server_mode": AlgorithmInputMode.LIVE,
     "algo_type": AlgoType.EXHAUSTIVE_ASTAR,
   }
-  commands, obstacle_orders = get_shortest_path(live_algo_input)
-  return { "commands": commands, "path": obstacle_orders }
+  commands, obstacle_orders, android_final_coordinates = get_shortest_path(live_algo_input)
+  # print('android: ', android_final_coordinates)
+
+  return { "commands": commands, "path": obstacle_orders, "coordinates": android_final_coordinates }
 
 @app.post("/algo/live", response_model=AlgorithmOutputLive, tags=["Algorithm"])
 async def algo_live(algo_input: AlgorithmInput):
   """Main endpoint for live mode"""
-  commands, obstacle_orders = get_shortest_path(algo_input.model_dump())
-
-  return { "commands": commands, "path": obstacle_orders }
+  commands, obstacle_orders, android_final_coordinates = get_shortest_path(algo_input.model_dump())
+  return { "commands": commands, "path": obstacle_orders, "coordinates": android_final_coordinates }
 
 if __name__ == '__main__':
   mp.freeze_support() # Needed to run child processes (multiprocessing)

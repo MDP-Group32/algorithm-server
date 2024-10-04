@@ -172,7 +172,7 @@ def convertThetatoNumericDirection(theta):
         return 1
 
 def getFinalStmCommand(originalCommand):
-    if originalCommand.upper().startswith("SNAP"):
+    if originalCommand.upper().startswith("ST"):
         return originalCommand
     else:
         originalCommandArray = originalCommand.split(",")
