@@ -75,7 +75,7 @@ def get_shortest_path(algo_input: AlgorithmInput):
     current_perm = 1
     stm_commands = []
     obstacle_orders = []
-    android_final_coordinates = 'ROBOT:0,0,1'
+    android_final_coordinates = 'ROBOT:0,0.1;'
 
     for path in paths:
       commands = convert_segments_to_commands(path)
