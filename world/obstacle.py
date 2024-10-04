@@ -29,8 +29,8 @@ class Obstacle:
         Returns the (x,y) position of the robot to interact with the obstacle. (E.g. to take a photo)
         Refer to IPAD Notability for Diagram explaining this calculation
         '''
-        x = self.x
-        y = self.y
+        x = self.x #original obstacle x
+        y = self.y #original obstacle y
         theta = None
 
         offset = (ROBOT_WIDTH - OBSTACLE_WIDTH) / 2
@@ -41,7 +41,7 @@ class Obstacle:
             Direction.EAST: (ROBOT_MIN_CAMERA_DIST + OBSTACLE_WIDTH + ROBOT_WIDTH, -offset, pi),
             Direction.WEST: (-(ROBOT_MIN_CAMERA_DIST + ROBOT_WIDTH), offset + OBSTACLE_WIDTH, 0)
         }
-
+        print('self.x', str(self.x), 'self.y', str(self.y), 'self.facing', str(self.facing))
         dx, dy, theta = adjustments[self.facing]
         interaction_position = Position(x + dx, y + dy, theta)
         print('interaction_position:', interaction_position)

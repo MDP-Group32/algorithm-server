@@ -165,7 +165,7 @@ class AStar:
     def _set_bounds(self):
         vv = calc_vector(self.end.theta, 1)
         vh = calc_vector(self.end.theta - pi/2, 1)
-
+        print("Self.end.theta: " + str(self.end.theta), "Self.end.x: " + str(self.end.x), "Self.end.y: " + str(self.end.y))
         end = np.array([self.end.x, self.end.y])
         _TR = end + vh * MAX_X_ERR[1] + vv * MAX_Y_ERR[0]
         _BL = end - vh * MAX_X_ERR[0] - vv * MAX_Y_ERR[1]
@@ -174,8 +174,19 @@ class AStar:
         self.y_bounds = sorted([_TR[1], _BL[1]])
 
         # Ensure that the range of the x_bounds and y_bounds are within the MAP DIMENSIONS [0, 200]
-        self.x_bounds = [max(0, self.x_bounds[0]), min(self.x_bounds[1], MAP_WIDTH)]
-        self.y_bounds = [max(0, self.y_bounds[0]), min(self.y_bounds[1], MAP_HEIGHT)]
+        # self.x_bounds = [max(0, self.x_bounds[0]), min(self.x_bounds[1], MAP_WIDTH)]
+        # self.y_bounds = [max(0, self.y_bounds[0]), min(self.y_bounds[1], MAP_HEIGHT)]
+        self.x_bounds = [max(0, self.x_bounds[0]), min(self.x_bounds[1], 195)]
+        self.y_bounds = [max(0, self.y_bounds[0]), min(self.y_bounds[1], 195)]
+        # self.x_bounds[1] = MAP_WIDTH if self.x_bounds[1] < 0 else self.x_bounds[1]
+        # self.y_bounds[1] = MAP_HEIGHT if self.y_bounds[1] < 0 else self.y_bounds[1]
+        # self.x_bounds[0] = max(0, self.x_bounds[0])  # Lower bound cannot be negative
+        # self.x_bounds[1] = max(MAP_WIDTH, self.x_bounds[1])  # Upper bound should not exceed map width
+
+        # self.y_bounds[0] = max(0, self.y_bounds[0])  # Lower bound cannot be negative
+        # self.y_bounds[1] = min(MAP_HEIGHT, self.y_bounds[1])  # Upper bound should not exceed map height
+        print("X bounds: ", self.x_bounds)
+        print("Y bounds: ", self.y_bounds)
 
     def search(
         self,

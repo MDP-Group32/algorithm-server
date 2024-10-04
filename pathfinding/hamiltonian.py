@@ -139,7 +139,10 @@ class HamiltonianSearch:
                     todo.put((r, c))
 
         # Create multiple Threads/Process and starts them
+        for node in self.pos:
+            print("Self.pos: ", str(node.x), str(node.y), str(node.theta))
         for i in range(self.n): # here self.n refers to the number of child processes to run concurrently
+            #self.pos = interaction position coordinates
             p = SearchProcess(self.pos, self.astar, todo, done, i, self.algo_type)
             p.daemon = True
             p.start()
