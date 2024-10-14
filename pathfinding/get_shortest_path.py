@@ -75,6 +75,7 @@ def get_shortest_path(algo_input: AlgorithmInput):
     current_perm = 1
     stm_commands = []
     obstacle_orders = []
+    obstacle_order_str = ''
     android_final_coordinates = 'ROBOT:0,0.1;'
 
     for path in paths:
@@ -107,6 +108,7 @@ def get_shortest_path(algo_input: AlgorithmInput):
       formatted_output = f"{final_x[1]},{final_y[1]}.{final_direction[1]};"
       # print('Formatted output', formatted_output)
       android_final_coordinates += formatted_output
+      obstacle_order_str += final_stm_command
     
     # Add FIN as the last command (For Raspberry Pi Team to know that the algorithm has ended)
     algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
@@ -114,5 +116,22 @@ def get_shortest_path(algo_input: AlgorithmInput):
       value="#####",
       end_position=algoOutputLiveCommands[-1].end_position
     ))
+    obstacle_order_str += '#####'
     # print('android2', android_final_coordinates)
-    return algoOutputLiveCommands, obstacle_orders, android_final_coordinates
+    # print("obstacle order str: ", len(obstacle_order_str))
+    string_length = format_length(obstacle_order_str)
+    return algoOutputLiveCommands, obstacle_orders, android_final_coordinates, obstacle_order_str, string_length
+
+def format_length(s):
+    """
+    Calculate the length of the input string and return it as a string, 
+    prefixed with zeroes to ensure a minimum length of 4 characters.
+
+    Args:
+        s (str): The input string.
+
+    Returns:
+        str: The length of the input string as a 4-character string.
+    """
+    return f"{len(s):04d}"
+
