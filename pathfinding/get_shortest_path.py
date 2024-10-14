@@ -27,7 +27,28 @@ def extract_obstacles_from_input(input_obstacles, algo_server_mode):
     # Live mode uses 10cm grid format (so need to *2 to align with algo's 5cm grid format)
   grid_pos_to_c_pos_multiplier *= 2
   
+
   for obstacle in input_obstacles:
+    if obstacle["x"] == 0 and 1 <= obstacle["y"] <= 18 and (obstacle["d"] == 2 or obstacle["d"] == 1):
+      obstacle["x"] += 1
+    elif obstacle["x"] == 19 and 1 <= obstacle["y"] <= 18 and (obstacle["d"] == 2 or obstacle["d"] == 1):
+      obstacle["x"] -= 1
+    elif obstacle["y"] == 0 and 1 <= obstacle["x"] <= 18 and (obstacle["d"] == 3 or obstacle["d"] == 4):
+      obstacle["y"] += 1
+    elif obstacle["y"] == 19 and 1 <= obstacle["x"] <= 18 and (obstacle["d"] == 3 or obstacle["d"] == 4):
+      obstacle["y"] -= 1
+    elif obstacle["x"] == 0 and obstacle["y"] == 19 and obstacle["d"] == 2:
+      obstacle["x"] += 1
+    elif obstacle["x"] == 0 and obstacle["y"] == 19 and obstacle["d"] == 3:
+      obstacle["y"] -= 1
+    elif obstacle["x"] == 19 and obstacle["y"] == 19 and obstacle["d"] == 2:
+      obstacle["x"] -= 1
+    elif obstacle["x"] == 19 and obstacle["y"] == 19 and obstacle["d"] == 4:
+      obstacle["y"] -= 1
+    elif obstacle["x"] == 19 and obstacle["y"] == 0 and obstacle["d"] == 4:
+      obstacle["y"] += 1
+    elif obstacle["x"] == 19 and obstacle["y"] == 0 and obstacle["d"] == 1:
+      obstacle["x"] -= 1
     obstacles.append(Obstacle(
       x=obstacle["x"] * grid_pos_to_c_pos_multiplier,
       y=obstacle["y"] * grid_pos_to_c_pos_multiplier,
@@ -134,4 +155,3 @@ def format_length(s):
         str: The length of the input string as a 4-character string.
     """
     return f"{len(s):04d}"
-
