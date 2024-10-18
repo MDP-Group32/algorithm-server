@@ -97,7 +97,6 @@ def get_shortest_path(algo_input: AlgorithmInput):
     stm_commands = []
     obstacle_orders = []
     obstacle_order_str = ''
-    android_final_coordinates = 'ROBOT:0,0.1;'
 
     for path in paths:
       commands = convert_segments_to_commands(path)
@@ -123,12 +122,6 @@ def get_shortest_path(algo_input: AlgorithmInput):
         value=final_stm_command,
         end_position=command[1]
       ))
-      # print('Command', command[1])
-      # x1,y1.d1;x2,y2.d2;...
-      final_x, final_y, final_direction = command[1]
-      formatted_output = f"{final_x[1]},{final_y[1]}.{final_direction[1]};"
-      # print('Formatted output', formatted_output)
-      android_final_coordinates += formatted_output
       obstacle_order_str += final_stm_command
     
     # Add FIN as the last command (For Raspberry Pi Team to know that the algorithm has ended)
@@ -141,7 +134,7 @@ def get_shortest_path(algo_input: AlgorithmInput):
     # print('android2', android_final_coordinates)
     # print("obstacle order str: ", len(obstacle_order_str))
     string_length = format_length(obstacle_order_str)
-    return algoOutputLiveCommands, obstacle_orders, android_final_coordinates, obstacle_order_str, string_length
+    return algoOutputLiveCommands, obstacle_orders, obstacle_order_str, string_length
 
 def format_length(s):
     """

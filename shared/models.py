@@ -47,6 +47,5 @@ class AlgorithmOutputLiveCommand(BaseModel):
 class AlgorithmOutputLive(BaseModel):
   commands: list[AlgorithmOutputLiveCommand]
   path: list[int] # obstacle orders
-  coordinates: str
   path_string: str
   string_length: str
