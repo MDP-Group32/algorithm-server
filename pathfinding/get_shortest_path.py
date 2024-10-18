@@ -114,33 +114,15 @@ def get_shortest_path(algo_input: AlgorithmInput):
       final_stm_command = getFinalStmCommand(command[0])
       if final_stm_command == 'FF000':
         continue
-
-      distance = int(final_stm_command[2:])  # Extract distance as an integer
-      base_command = final_stm_command[:2]  # Extract the prefix (FF or RR)
-      
-      # Split the command into segments of 50 if distance is greater than 50
-      while distance > 50:
-          # Create a command for 50 units
-          segmented_command = f"{base_command}{str(50).zfill(3)}"
-          algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
-              cat="control",
-              value=segmented_command,
-              end_position=command[1]
-          ))
-          obstacle_order_str += segmented_command
-          
-          distance -= 50  # Reduce the remaining distance
-      final_segment_command = f"{base_command}{str(distance).zfill(3)}"
       # print('Command[0]', command[0])
       # print('Command[0] edited', getFinalStmCommand(command[0]))
       algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
         cat="control",
         # value=command[0],
-        value=final_segment_command,
+        value=final_stm_command,
         end_position=command[1]
       ))
-      obstacle_order_str += final_segment_command
-      # obstacle_order_str += final_stm_command
+      obstacle_order_str += final_stm_command
     
     # Add FIN as the last command (For Raspberry Pi Team to know that the algorithm has ended)
     algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
