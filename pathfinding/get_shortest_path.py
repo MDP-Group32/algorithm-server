@@ -16,17 +16,9 @@ numeric_to_direction_map = {
 }
 
 def extract_obstacles_from_input(input_obstacles, algo_server_mode):
-  """
-  Helper function to convert input obstacles to `Obstacle` object accepted by the algorithm
-  """
   obstacles = []
 
-  grid_pos_to_c_pos_multiplier = GRID_COORD #5
-
-  # if algo_server_mode == AlgorithmInputMode.LIVE:
-    # Live mode uses 10cm grid format (so need to *2 to align with algo's 5cm grid format)
-  grid_pos_to_c_pos_multiplier *= 2
-  
+  grid_pos_to_c_pos_multiplier = GRID_COORD * 2  
 
   for obstacle in input_obstacles:
     if obstacle["x"] == 0 and 1 <= obstacle["y"] <= 18 and (obstacle["d"] == 2 or obstacle["d"] == 1):
@@ -62,23 +54,15 @@ def get_shortest_path(algo_input: AlgorithmInput):
 
   # Obstacles
   obstacles = extract_obstacles_from_input(algo_input["value"]["obstacles"], algo_server_mode)
-  for obstacle in obstacles:
-    print("Obstacles: ", obstacle.x, obstacle.y, obstacle.facing)
-  # Start Position
   start_position = Position(x=0, y=0, theta=pi/2)
 
-  # World
   world = World(obstacles=obstacles)
 
-  # Algorithm
   algo_type = algo_input["algo_type"]
-  print("Algorithm: ", algo_type)
   algo = HamiltonianSearch(world=world, src=start_position, algo_type=algo_type)
 
-  # Algorithm Search⭐
   min_perm, paths = algo.search()
 
-  # Results
   if algo_server_mode == AlgorithmInputMode.SIMULATOR:
     simulator_algo_output = []
     for path in paths:
@@ -114,25 +98,19 @@ def get_shortest_path(algo_input: AlgorithmInput):
       final_stm_command = getFinalStmCommand(command[0])
       if final_stm_command == 'FF000':
         continue
-      # print('Command[0]', command[0])
-      # print('Command[0] edited', getFinalStmCommand(command[0]))
       algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
         cat="control",
-        # value=command[0],
         value=final_stm_command,
         end_position=command[1]
       ))
       obstacle_order_str += final_stm_command
     
-    # Add FIN as the last command (For Raspberry Pi Team to know that the algorithm has ended)
     algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
       cat="control",
       value="#####",
       end_position=algoOutputLiveCommands[-1].end_position
     ))
     obstacle_order_str += '#####'
-    # print('android2', android_final_coordinates)
-    # print("obstacle order str: ", len(obstacle_order_str))
     string_length = format_length(obstacle_order_str)
     return algoOutputLiveCommands, obstacle_orders, obstacle_order_str, string_length
 

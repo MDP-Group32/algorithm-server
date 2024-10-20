@@ -54,20 +54,12 @@ class World:
 
 
     def is_within_map_boundary(self, x: float, y: float) -> bool:
-        """Checks if (x, y) is within the boundary of the Map"""
         return (
             -EDGE_ERR <= x <= MAP_WIDTH + EDGE_ERR
             and -EDGE_ERR <= y <= MAP_HEIGHT + EDGE_ERR
-            # -EDGE_ERR < x < MAP_WIDTH + EDGE_ERR
-            # and -EDGE_ERR < y < MAP_HEIGHT + EDGE_ERR
         )
     
     def is_valid_path(self, pos: Position, obstacles: List["Obstacle"]) -> bool:
-        '''
-            Check if the robot is within the boundary of the map and not colliding with any obstacles
-            Return True if the robot is within the boundary of the map and not colliding with any obstacles
-            Return False if the robot is outside the boundary of the map or colliding with any obstacles
-        '''
         # Robot
         r_origin = np.array([pos.x, pos.y]) # Bottom left of robot coordinates
         r_vec_up = calc_vector(pos.theta, ROBOT_HEIGHT) # Top left of robot coordinates
@@ -109,16 +101,11 @@ class World:
             o_left = obs.x + EDGE_ERR - EXTRA_VIRTUAL_BOUNDARY
             o_top = obs.y + OBSTACLE_WIDTH - EDGE_ERR + EXTRA_VIRTUAL_BOUNDARY
             o_right = obs.x + OBSTACLE_WIDTH - EDGE_ERR + EXTRA_VIRTUAL_BOUNDARY
-            # o_btm = obs.y
-            # o_left = obs.x
-            # o_top = obs.y + OBSTACLE_WIDTH
-            # o_right = obs.x + OBSTACLE_WIDTH
 
             # Return False if Robot 4 corners' (x, y) is inside the obstacle (x, y) boundary
             for cx, cy in r_corners:
                 if o_left <= cx <= o_right and o_btm <= cy <= o_top:
                     return False
-            #TODO: understand ray casting
             for o_x, o_y in (
                 (o_left, o_btm),  # obstacle's btm left corner
                 (o_left, o_top),  # obstacle's top left corner
@@ -127,16 +114,13 @@ class World:
             ):
                 crosses = 0
                 for (st_x, st_y), (end_x, end_y) in r_segments:
-                    # Robot edge is entirely above or below obstacle's y coordinate
                     if (st_y > o_y and end_y > o_y) or (st_y < o_y and end_y < o_y):
                         continue
                     
-                    # Vertical Robot edge
                     if (end_x - st_x) == 0:
                         intersect_x = st_x
-                    # Non-vertical Robot edge
                     else:
-                        m = (end_y - st_y) / (end_x - st_x) # Gradient
+                        m = (end_y - st_y) / (end_x - st_x)
                         if m == 0:
                             intersect_x = min(st_x, end_x)
                         else:
@@ -152,11 +136,6 @@ class World:
         pos: "Position",
         move: "Movement"
     ) -> List["Obstacle"]:
-        """
-            This function helps identify obstacles that are potentially in the path of the robot based on
-            its current position and movement direction,
-            allowing the robot to prioritize its actions accordingly.
-        """
         v_t = calc_vector(pos.theta, 1)
         v_r = calc_vector(pos.theta - pi/2, 1)
 

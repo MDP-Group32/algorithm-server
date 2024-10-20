@@ -11,10 +11,10 @@ class AlgorithmInputMode(Enum):
   LIVE = "live"
 
 class AlgorithmInputValueObstacle(BaseModel):
-  id: int # obstacle_id
-  x: int # grid_format
-  y: int # grid_format
-  d: int # direction of obstacle; 1: North; 2: South; 3: East; 4: West
+  id: int
+  x: int
+  y: int
+  d: int
 
 class AlgorithmInputValue(BaseModel):
   obstacles: list[AlgorithmInputValueObstacle]
@@ -26,18 +26,18 @@ class AlgorithmInput(BaseModel):
   algo_type: Optional[AlgoType] = AlgoType.EXHAUSTIVE_ASTAR
 
 class AlgorithmOutputSimulatorPosition(BaseModel):
-  x: int # in cm
-  y: int # in cm
-  theta: float # in radian
+  x: int
+  y: int 
+  theta: float 
 
 class AlgorithmOutputSimulator(BaseModel):
   positions: list[AlgorithmOutputSimulatorPosition]
   runtime: str
 
 class AlgorithmOutputLivePosition(BaseModel):
-  x: int # in cm
-  y: int # in cm
-  d: int # Robot Face -> 1: North; 2: South; 3: East; 4: West
+  x: int 
+  y: int 
+  d: int
 
 class AlgorithmOutputLiveCommand(BaseModel):
   cat: str = "control"

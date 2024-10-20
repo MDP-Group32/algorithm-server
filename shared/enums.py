@@ -17,9 +17,3 @@ class Movement(Enum):
     FWD_RIGHT = 4
     BWD_LEFT = 5
     BWD_RIGHT = 6
-
-
-class TurnDirection(Enum):
-    """Clockwise or anticlockwise"""
-    CLOCKWISE = 0
-    ANTICLOCKWISE = 1

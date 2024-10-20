@@ -2,9 +2,7 @@ from collections import deque
 import heapq
 from math import pi
 import numpy as np
-import logging
 from typing import List, Optional
-import time
 
 from world.world import World
 from shared.constants import (
@@ -18,8 +16,6 @@ from shared.constants import (
     MAX_THETA_ERR,
     MAX_X_ERR,
     MAX_Y_ERR,
-    MAP_WIDTH,
-    MAP_HEIGHT,
 )
 from shared.enums import Movement
 from shared.types import Position
@@ -34,8 +30,6 @@ from stm.move import (
     move_forward_right
 )
 
-
-logger = logging.getLogger('ASTAR')
 
 
 class Node:
@@ -109,11 +103,6 @@ class AStar:
         self.x_bounds = None
         self.y_bounds = None
 
-    '''
-    Checks if the current position pos is within the target bounds (x_bounds and y_bounds) 
-    and if the orientation (theta) of the position is within an acceptable error (MAX_THETA_ERR)
-    of the target orientation.
-    '''
     def _goal(
         self,
         pos: "Position"
@@ -124,10 +113,6 @@ class AStar:
             return True
         return False
 
-    '''
-    Generates successor nodes (neighboring positions) from the current node 
-    by applying all possible moves (self.moves).
-    '''
     def _expand(
         self,
         node: "Node", 
@@ -161,11 +146,9 @@ class AStar:
             heapq.heappush(self.open, nxt_node)
             self.open_h[nxt_pos_tup] = nxt_node.f
 
-    #TODO: understand what this function does
     def _set_bounds(self):
         vv = calc_vector(self.end.theta, 1)
         vh = calc_vector(self.end.theta - pi/2, 1)
-        # print("Self.end.theta: " + str(self.end.theta), "Self.end.x: " + str(self.end.x), "Self.end.y: " + str(self.end.y))
         end = np.array([self.end.x, self.end.y])
         _TR = end + vh * MAX_X_ERR[1] + vv * MAX_Y_ERR[0]
         _BL = end - vh * MAX_X_ERR[0] - vv * MAX_Y_ERR[1]
@@ -173,27 +156,14 @@ class AStar:
         self.x_bounds = sorted([_TR[0], _BL[0]])
         self.y_bounds = sorted([_TR[1], _BL[1]])
 
-        # Ensure that the range of the x_bounds and y_bounds are within the MAP DIMENSIONS [0, 200]
-        # self.x_bounds = [max(0, self.x_bounds[0]), min(self.x_bounds[1], MAP_WIDTH)]
-        # self.y_bounds = [max(0, self.y_bounds[0]), min(self.y_bounds[1], MAP_HEIGHT)]
         self.x_bounds = [max(0, self.x_bounds[0]), min(self.x_bounds[1], 195)]
         self.y_bounds = [max(0, self.y_bounds[0]), min(self.y_bounds[1], 195)]
-        # self.x_bounds[1] = MAP_WIDTH if self.x_bounds[1] < 0 else self.x_bounds[1]
-        # self.y_bounds[1] = MAP_HEIGHT if self.y_bounds[1] < 0 else self.y_bounds[1]
-        # self.x_bounds[0] = max(0, self.x_bounds[0])  # Lower bound cannot be negative
-        # self.x_bounds[1] = max(MAP_WIDTH, self.x_bounds[1])  # Upper bound should not exceed map width
-
-        # self.y_bounds[0] = max(0, self.y_bounds[0])  # Lower bound cannot be negative
-        # self.y_bounds[1] = min(MAP_HEIGHT, self.y_bounds[1])  # Upper bound should not exceed map height
-        # print("X bounds: ", self.x_bounds)
-        # print("Y bounds: ", self.y_bounds)
 
     def search(
         self,
         st: "Position",
         end: "Position",
     ) -> List["Node"]:
-        logger.info(f'Start search from {st} to {end}')
         end_node = Node(end, end, 0, 0)
         self.end = end
         self.open = [Node(st.alignToGrid(), st, 0, 0)]
@@ -205,17 +175,12 @@ class AStar:
 
             node = heapq.heappop(self.open)
             tup = node.pos.to_tuple()
-            logger.debug(f'{node} {node.parent}')
 
             if self._goal(node.c_pos):
-                logger.info(f'Found goal {end_node}')
-                # print(f'Found goal {end_node}')
-                return self._reconstruct(node) # AlgoOutput -> An array of `Node` from start to goal/end
+                return self._reconstruct(node)
 
             self.closed.append(tup) # add current node to explored nodes (already visited)
             self._expand(node) # generate successor nodes
-
-        logger.info(f'Unable to reach {end} from {st}')
         return [] # return empty array if goal is not reachable
 
 
@@ -223,17 +188,9 @@ class AStar:
         self,
         last: "Node"
     ) -> List["Node"]:
-        """
-        Reconstructs the shortest path taken to reach the goal
-
-        Returns:
-            An array of `Node` from start to goal/end
-        """
         res = deque()
 
         while last:
             res.appendleft(last)
             last = last.parent
-        # for node in list(res):
-        #     print(node.pos, node.c_pos, ",")
         return list(res)

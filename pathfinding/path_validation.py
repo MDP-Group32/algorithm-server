@@ -37,15 +37,12 @@ def has_collision(
             v *= -1
         new.add(v)
         return not world.is_valid_path(new, obs)
-    #TODO: rename v_u and v_r
     start_vector = np.array([start.x, start.y])
     v_u = calc_vector(start.theta - pi/2, 1)
     v_r = calc_vector(start.theta, 1)
     
     for wp in wps:
-        # * is used to unpack
         pos = Position(*(start_vector + wp[0]*v_u + wp[1]*v_r), (start.theta + wp[2]) % (2*pi))
-        # if not world.is_valid_path(pos.alignToGrid(), obs):
         if not world.is_valid_path(pos, obs):
             return True
     return False

@@ -7,26 +7,15 @@ from pathfinding.astar import Node
 def convert_segments_to_commands(
     segments: List["Node"]
 ) -> list[list[str | Position]]:
-    '''
-        Converts Path Segments to Commands
-
-        Returns:
-            [command, AlgoOutputLIvePosition (end_position of robot after executing the command)]
-    '''
     result = []
 
     GRID_CELL_CM = 10
-    #TODO: Tune w STM Team forward left, forward right, reverse left, reverse right values to input
-    # for each node in path
-    # The segment are nodes, and it contains information on how this node is reached
-    # Is it through a forward motion, backward motion, left turn, right turn, etc.
     for segment in segments:
         if segment.v == 1:
             # PREVIOUSLY: robot move forward, and steered left (FORWARD LEFT)
             if segment.s == -1:
                 result.append([
                     "left,77,forward,0",
-                    # "FL000",
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
                         y = segment.pos.y // GRID_CELL_CM,
@@ -37,18 +26,15 @@ def convert_segments_to_commands(
             elif segment.s == 0:
                 result.append([
                     "center,0,forward," + str(int(segment.d)),
-                    # "FF" + str(int(segment.d)).zfill(3),
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
                         y = segment.pos.y // GRID_CELL_CM,
                         d = convertThetatoNumericDirection(segment.pos.theta)
                     )
                 ])
-            # The value here shold move the robot from (0,7,d=1) to (4,12,d=3)
             # PREVIOUSLY: robot move forward, and steered right (FORWARD RIGHT)
             elif segment.s == 1:
                 result.append([
-                    # "FR000",
                     "right,102,forward,0",
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
@@ -61,7 +47,6 @@ def convert_segments_to_commands(
             if segment.s == -1:
                 result.append([
                     "left,111,reverse,0",
-                    # "BL000",
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
                         y = segment.pos.y // GRID_CELL_CM,
@@ -72,7 +57,6 @@ def convert_segments_to_commands(
             elif segment.s == 0:
                 result.append([
                     "center,0,reverse," + str(int(segment.d)),
-                    # "RR" + str(int(segment.d)).zfill(3),
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
                         y = segment.pos.y // GRID_CELL_CM,
@@ -83,7 +67,6 @@ def convert_segments_to_commands(
             elif segment.s == 1:
                 result.append([
                     "right,71,reverse,0",
-                    # "BR000",
                     AlgorithmOutputLivePosition(
                         x = segment.pos.x // GRID_CELL_CM,
                         y = segment.pos.y // GRID_CELL_CM,
@@ -91,7 +74,6 @@ def convert_segments_to_commands(
                     )
                 ])
 
-    # [Merge Commands] Combine similar commands together to reduce the number of commands (to improve Robot Execution time)
     resultCombined = []
     n = 0
     for i in range(len(result)):
@@ -112,14 +94,6 @@ def convert_segments_to_commands(
                 n += 1
     
     def _get_translated_straight_distance(direction: str, distance: int) -> int:
-        """
-            To stop the robot's straight movement slightly later to get the actual desired distance to be travelled by the robot.
-            Value (in cm) is measured via trial and error
-
-            Parameter:
-                direction: Robot's direction
-                distance: Distance that the Robot should travel physically.
-        """
         # For Stop Command
         if distance == 0:
             return 0
@@ -147,15 +121,6 @@ def convert_segments_to_commands(
     return resultCombined
     
 def convertThetatoNumericDirection(theta):
-    '''
-        Converts Robot's Theta to Numeric Representation of Robot's Direction
-
-        Returns:
-            1: North
-            2: South
-            3: East
-            4: West
-    '''
     # North
     if math.pi / 4 <= theta and theta <= 3 * math.pi / 4:
         return 1

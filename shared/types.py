@@ -23,12 +23,6 @@ class Position:
     def alignToGrid(
         self,
     ) -> "Position":
-        '''
-        The function adjusts the position's coordinates and angle to the nearest specified grid resolution.
-
-        Coordinates are adjusted to the nearest multiple of GRID_COORD (5 units in this case).
-        Angle is adjusted to the nearest multiple of GRID_THETA (15 degrees in this case).
-        '''
         x = int(round(self.x / GRID_COORD) * GRID_COORD)
         y = int(round(self.y / GRID_COORD) * GRID_COORD)
         theta = round(self.theta % (2*pi) / pi * 180 / GRID_THETA) * GRID_THETA / 180 * pi
@@ -44,9 +38,6 @@ class Position:
         self, 
         vec: np.array
     ):
-        """
-        Adds the given vector to the position's coordinates.
-        """
         self.x += vec[0]
         self.y += vec[1]
 

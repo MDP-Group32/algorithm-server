@@ -11,19 +11,6 @@ ROBOT_ACTUAL_WIDTH = 18.8 # defined in lecture notes
 ROBOT_ACTUAL_HEIGHT = 23 # defined in lecture notes
 ROBOT_VERT_OFFSET = (ROBOT_HEIGHT - ROBOT_ACTUAL_HEIGHT) / 2
 
-# +--------------------+
-# | collision checking |
-# +--------------------+
-"""
-  # TODO: Measureable
-  WPS: Waypoints
-  Measure using Bottom Left of Robot
-"""
-
-# Measure (Using Bottom Left of Robot)
-
-# usually take last path point as the final displacement
-
 # OUR MEASUREMENTS INDOOR V1 (OURS V1)
 # WPS_FL_IN = [(-2,10, 0.3142), (-8,15.5, 0.6283), (-15,21, 0.9425), (-22,23, 1.2566), (-28,27, 1.5707963267948966)]
 # WPS_FR_IN = [(4,25, -0.3142), (11,31.5, -0.6283), (20,37, -0.9425), (30.5,43, -1.2566), (40.5,44.5, -1.5707963267948966)]
@@ -122,7 +109,7 @@ ROBOT_MIN_CAMERA_DIST = 25
 
 MAP_WIDTH = 200 
 MAP_HEIGHT = 200
-GRID_WIDTH = 5 # for display on simulator
-GRID_COORD = _DIST_STR # for cell grid (coords) 5. Max value < 1.5* min(DIST_BL, DIST_BR, ... DIST_FW)
-GRID_THETA = 15 # for cell grid (theta) 15
+GRID_WIDTH = 5
+GRID_COORD = _DIST_STR
+GRID_THETA = 15
 

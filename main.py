@@ -30,7 +30,6 @@ async def healthcheck():
 
 @app.get("/algorithm/simulator/shortest_path/", tags=["Algorithm"])
 async def sample_algorithm_simulator():
-  """To test algorithm and endpoint on the server without starting up the web simulator"""
   # Basic Mock Data
   simulator_algorithm_input: AlgorithmInput = {
     "cat": "obstacles",
@@ -50,7 +49,6 @@ async def sample_algorithm_simulator():
 
 @app.post("/algorithm/simulator/shortest_path", response_model=AlgorithmOutputSimulator, tags=["Algorithm"])
 async def algorithm_simulator(algo_input: AlgorithmInput):
-  """Main endpoint for simulator"""
   start_time = time.time()
   positions = get_shortest_path(algo_input.model_dump())
 
@@ -60,8 +58,6 @@ async def algorithm_simulator(algo_input: AlgorithmInput):
 
 @app.get("/algo/live/simple-test", response_model=AlgorithmOutputLive, tags=["Algorithm"])
 async def algo_live_test():
-  """To test algo and endpoint on the server in live mode"""
-  # Basic Mock Data
   live_algo_input: AlgorithmInput = {
     "cat": "obstacles",
     "value": {
@@ -80,9 +76,8 @@ async def algo_live_test():
 
 @app.post("/algo/live", response_model=AlgorithmOutputLive, tags=["Algorithm"])
 async def algo_live(algo_input: AlgorithmInput):
-  """Main endpoint for live mode"""
   commands, obstacle_orders, obstacle_order_str, string_length = get_shortest_path(algo_input.model_dump())
   return { "commands": commands, "path": obstacle_orders, "path_string": obstacle_order_str, "string_length": string_length }
 
 if __name__ == '__main__':
-  mp.freeze_support() # Needed to run child processes (multiprocessing)
+  mp.freeze_support()
