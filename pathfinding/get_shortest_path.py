@@ -2,7 +2,7 @@ from math import pi
 from pathfinding.hamiltonian import HamiltonianSearch
 from shared.constants import GRID_COORD
 from shared.enums import Direction
-from shared.models import AlgorithmInput, AlgorithmInputMode, AlgorithmOutputLiveCommand
+from shared.models import AlgorithmInput, AlgorithmInputMode
 from shared.types import Position
 from stm.commands import convert_segments_to_commands, getFinalStmCommand
 from world.obstacle import Obstacle
@@ -15,7 +15,7 @@ numeric_to_direction_map = {
     '4': Direction.WEST
 }
 
-def extract_obstacles_from_input(input_obstacles, algo_server_mode):
+def extract_obstacles_from_input(input_obstacles):
   obstacles = []
 
   grid_pos_to_c_pos_multiplier = GRID_COORD * 2  
@@ -53,7 +53,7 @@ def get_shortest_path(algo_input: AlgorithmInput):
   algo_server_mode = algo_input["server_mode"]
 
   # Obstacles
-  obstacles = extract_obstacles_from_input(algo_input["value"]["obstacles"], algo_server_mode)
+  obstacles = extract_obstacles_from_input(algo_input["value"]["obstacles"])
   start_position = Position(x=0, y=0, theta=pi/2)
 
   world = World(obstacles=obstacles)
@@ -75,8 +75,6 @@ def get_shortest_path(algo_input: AlgorithmInput):
     return simulator_algo_output
   
   elif algo_server_mode == AlgorithmInputMode.LIVE:
-    print("Min Perm: ", min_perm)
-    print("Paths: ", paths)
     current_perm = 1
     stm_commands = []
     obstacle_orders = []
@@ -84,7 +82,6 @@ def get_shortest_path(algo_input: AlgorithmInput):
 
     for path in paths:
       commands = convert_segments_to_commands(path)
-      print("Commands: ", commands)
       stm_commands.extend(commands)
 
       # Add ST001 command after each path (from one obstacle to another) (For Raspberry Pi Team to know when to scan the image)
@@ -92,27 +89,15 @@ def get_shortest_path(algo_input: AlgorithmInput):
       obstacle_orders.append(int(min_perm[current_perm]))
       current_perm += 1 # Increment by current_perm to access the next obstacle_id
       
-    # print("STM Commands: ", stm_commands)
-    algoOutputLiveCommands: list[AlgorithmOutputLiveCommand] = [] # Array of commands
     for command in stm_commands:
       final_stm_command = getFinalStmCommand(command[0])
       if final_stm_command == 'FF000':
         continue
-      algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
-        cat="control",
-        value=final_stm_command,
-        end_position=command[1]
-      ))
       obstacle_order_str += final_stm_command
     
-    algoOutputLiveCommands.append(AlgorithmOutputLiveCommand(
-      cat="control",
-      value="#####",
-      end_position=algoOutputLiveCommands[-1].end_position
-    ))
     obstacle_order_str += '#####'
     string_length = format_length(obstacle_order_str)
-    return algoOutputLiveCommands, obstacle_orders, obstacle_order_str, string_length
+    return obstacle_orders, obstacle_order_str, string_length
 
 def format_length(s):
     """

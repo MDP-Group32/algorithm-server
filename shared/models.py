@@ -32,7 +32,6 @@ class AlgorithmOutputSimulatorPosition(BaseModel):
 
 class AlgorithmOutputSimulator(BaseModel):
   positions: list[AlgorithmOutputSimulatorPosition]
-  runtime: str
 
 class AlgorithmOutputLivePosition(BaseModel):
   x: int 
@@ -45,7 +44,6 @@ class AlgorithmOutputLiveCommand(BaseModel):
   end_position: AlgorithmOutputLivePosition
 
 class AlgorithmOutputLive(BaseModel):
-  commands: list[AlgorithmOutputLiveCommand]
   path: list[int] # obstacle orders
   path_string: str
   string_length: str
