@@ -21,6 +21,7 @@ def extract_obstacles_from_input(input_obstacles):
   grid_pos_to_c_pos_multiplier = GRID_XY * 2  
 
   for obstacle in input_obstacles:
+    # if at edge do some processing so that robot wont have to go out of bound
     if obstacle["x"] == 0 and 1 <= obstacle["y"] <= 18 and (obstacle["d"] == 2 or obstacle["d"] == 1):
       obstacle["x"] += 1
     elif obstacle["x"] == 19 and 1 <= obstacle["y"] <= 18 and (obstacle["d"] == 2 or obstacle["d"] == 1):

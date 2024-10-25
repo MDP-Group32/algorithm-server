@@ -94,7 +94,6 @@ class HamiltonianSearch:
             num_paths -= 1
         
         # Find shortest path among all permutations
-        start_time = time.time()
         heap = []
         for perm in permutations:
             cost = sum(adjacency_matrix[perm[i]][perm[i+1]] for i in range(num_nodes-1))
