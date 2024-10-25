@@ -1,13 +1,13 @@
 from math import pi
 
 from shared.constants import (
-    OBSTACLE_WIDTH,
-    ROBOT_MIN_CAMERA_DIST,
-    ROBOT_HEIGHT,
-    ROBOT_WIDTH
+    OBSTACLE_SIZE,
+    CAMERA_OFFSET,
+    ROBOT_THEORETICAL_HEIGHT,
+    ROBOT_THEORETICAL_WIDTH
 )
-from shared.enums import Direction
-from shared.types import Position
+from shared.enums import Bearing
+from shared.position import Position
 
 
 class Obstacle:
@@ -16,26 +16,26 @@ class Obstacle:
         self,
         x: float,
         y: float,
-        facing: Direction
+        facing: Bearing
     ):
         self.x = x
         self.y = y
         self.facing = facing
-        self.middle = (x+(OBSTACLE_WIDTH/2), y+(OBSTACLE_WIDTH/2))
+        self.middle = (x+(OBSTACLE_SIZE/2), y+(OBSTACLE_SIZE/2))
 
 
-    def get_interaction_position(self) -> Position:
+    def position_to_capture_image(self) -> Position:
         x = self.x #original obstacle x
         y = self.y #original obstacle y
         theta = None
 
-        offset = (ROBOT_WIDTH - OBSTACLE_WIDTH) / 2
+        offset = (ROBOT_THEORETICAL_WIDTH - OBSTACLE_SIZE) / 2
 
         adjustments = {
-            Direction.NORTH: (offset + OBSTACLE_WIDTH, ROBOT_MIN_CAMERA_DIST + OBSTACLE_WIDTH + ROBOT_HEIGHT, -pi / 2),
-            Direction.SOUTH: (-offset, -(ROBOT_MIN_CAMERA_DIST + ROBOT_HEIGHT), pi / 2),
-            Direction.EAST: (ROBOT_MIN_CAMERA_DIST + OBSTACLE_WIDTH + ROBOT_WIDTH, -offset, pi),
-            Direction.WEST: (-(ROBOT_MIN_CAMERA_DIST + ROBOT_WIDTH), offset + OBSTACLE_WIDTH, 0)
+            Bearing.NORTH: (offset + OBSTACLE_SIZE, CAMERA_OFFSET + OBSTACLE_SIZE + ROBOT_THEORETICAL_HEIGHT, -pi / 2),
+            Bearing.SOUTH: (-offset, -(CAMERA_OFFSET + ROBOT_THEORETICAL_HEIGHT), pi / 2),
+            Bearing.EAST: (CAMERA_OFFSET + OBSTACLE_SIZE + ROBOT_THEORETICAL_WIDTH, -offset, pi),
+            Bearing.WEST: (-(CAMERA_OFFSET + ROBOT_THEORETICAL_WIDTH), offset + OBSTACLE_SIZE, 0)
         }
         dx, dy, theta = adjustments[self.facing]
         interaction_position = Position(x + dx, y + dy, theta)

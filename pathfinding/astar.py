@@ -6,22 +6,22 @@ from typing import List, Optional
 
 from world.world import World
 from shared.constants import (
-    DIST_BL, 
-    DIST_BR, 
-    DIST_BW, 
-    DIST_FL, 
-    DIST_FR, 
-    DIST_FW,
-    PENALTY_STOP,
-    MAX_THETA_ERR,
-    MAX_X_ERR,
-    MAX_Y_ERR,
+    BACKWARD_LEFT_DISPLACEMENT, 
+    BACKWARD_RIGHT_DISPLACEMENT, 
+    BACKWARD_DISTANCE, 
+    FORWARD_LEFT_DISPLACEMENT, 
+    FORWARD_RIGHT_DISPLACEMENT, 
+    FORWARD_DISTANCE,
+    PENALIZE_STOP_MOTION_FACTOR,
+    ANGLE_ALLOWANCE,
+    X_ALLOWANCE,
+    Y_ALLOWANCE,
 )
-from shared.enums import Movement
-from shared.types import Position
-from shared.utils import calc_vector, get_euclidean_distance
+from shared.enums import Action
+from shared.position import Position
+from shared.vector import polar_to_vector, distance_euclidean
 from pathfinding.path_validation import has_collision
-from stm.move import (
+from stm.exploration import (
     move_backward,
     move_backward_left, 
     move_backward_right, 
@@ -58,7 +58,7 @@ class Node:
         self.parent = parent
 
 
-    def clone(self) -> "Node":
+    def deep_copy(self):
         return Node(self.pos, self.c_pos, self.g, self.h, self.parent, self.v, self.s, self.d)
     
 
@@ -75,53 +75,47 @@ class Node:
         self, 
         node: "Node"
     ) -> bool:
-        # custom comparator for heapq
         return self.f < node.f
     
-
-    def __str__(self) -> str:
-        return f'Node(x:{self.c_pos.x:6.2f}, y:{self.c_pos.y:6.2f}, θ:{self.c_pos.theta:6.2f}, g:{self.g:6.2f}, h:{self.h:6.2f}, f:{self.f:6.2f}), v:{self.v}, s:{self.s}'
-
-
 class AStar:
 
     def __init__(
         self, 
-        mp: "World"
+        world: "World"
     ):
-        # self.moves: (v, s, d, Movement, movement function)
+        # self.moves: (v, s, d, Action, movement function)
         self.moves = (
-            ( 1,  0, DIST_FW,    Movement.FWD,       move_forward),
-            ( 1, -1, DIST_FL[2], Movement.FWD_LEFT,  move_forward_left),
-            ( 1,  1, DIST_FR[2], Movement.FWD_RIGHT, move_forward_right),
-            (-1,  0, DIST_BW,    Movement.BWD,       move_backward),
-            (-1, -1, DIST_BL[2], Movement.BWD_LEFT,  move_backward_left),
-            (-1,  1, DIST_BR[2], Movement.BWD_RIGHT, move_backward_right),
+            ( 1,  0, FORWARD_DISTANCE,    Action.FORWARD,       move_forward),
+            ( 1, -1, FORWARD_LEFT_DISPLACEMENT[2], Action.FORWARD_LEFT,  move_forward_left),
+            ( 1,  1, FORWARD_RIGHT_DISPLACEMENT[2], Action.FORWARD_RIGHT, move_forward_right),
+            (-1,  0, BACKWARD_DISTANCE,    Action.BACKWARD,       move_backward),
+            (-1, -1, BACKWARD_LEFT_DISPLACEMENT[2], Action.BACKWARD_LEFT,  move_backward_left),
+            (-1,  1, BACKWARD_RIGHT_DISPLACEMENT[2], Action.BACKWARD_RIGHT, move_backward_right),
         )
-        self.map = mp
+        self.map = world
         self.end = None
         self.x_bounds = None
         self.y_bounds = None
 
-    def _goal(
+    def is_goal_node(
         self,
-        pos: "Position"
-    ) -> bool:
+        pos
+    ):
         if self.x_bounds[0] <= pos.x <= self.x_bounds[1] and \
            self.y_bounds[0] <= pos.y <= self.y_bounds[1] and \
-           abs(self.end.theta - pos.theta) % (2*pi) <= MAX_THETA_ERR:
+           abs(self.end.theta - pos.theta) % (2*pi) <= ANGLE_ALLOWANCE:
             return True
         return False
 
-    def _expand(
+    def explore(
         self,
-        node: "Node", 
+        node, 
     ):
         st = node.c_pos
 
         for v, s, d, mv, move_func in self.moves:
             nxt_pos = move_func(st)
-            nxt_pos_tup = nxt_pos.alignToGrid().to_tuple()
+            nxt_pos_tup = nxt_pos.get_grid_position().position_as_tuple()
             
             # self.closed represents nodes already explored
             if nxt_pos_tup in self.closed or has_collision(st, mv, self.map):
@@ -129,29 +123,27 @@ class AStar:
 
             penalty = 0
             if v != node.v or s != node.s:
-                penalty = PENALTY_STOP # penalty for changing direction
+                penalty = PENALIZE_STOP_MOTION_FACTOR # penalty for changing direction
 
-            nxt_node = Node(nxt_pos.alignToGrid(), nxt_pos, node.g + penalty + d, get_euclidean_distance(nxt_pos, self.end), node, v, s, d)            
+            neighbor = Node(nxt_pos.get_grid_position(), nxt_pos, node.g + penalty + d, distance_euclidean(nxt_pos, self.end), node, v, s, d)            
 
-            # there is a shorter way to reach a node that is already in open set
-            if nxt_node.f < self.open_h.get(nxt_pos_tup, -1):
+            if neighbor.f < self.open_h.get(nxt_pos_tup, -1):
                 for i, br in enumerate(self.open):
-                    if br == nxt_node:
-                        # replace br with cell
+                    if br == neighbor:
                         br.f = -1
                         heapq._siftdown(self.open, 0, i)
                         heapq.heappop(self.open)
                         break
 
-            heapq.heappush(self.open, nxt_node)
-            self.open_h[nxt_pos_tup] = nxt_node.f
+            heapq.heappush(self.open, neighbor)
+            self.open_h[nxt_pos_tup] = neighbor.f
 
-    def _set_bounds(self):
-        vv = calc_vector(self.end.theta, 1)
-        vh = calc_vector(self.end.theta - pi/2, 1)
+    def allowable_errors(self):
+        vv = polar_to_vector(self.end.theta, 1)
+        vh = polar_to_vector(self.end.theta - pi/2, 1)
         end = np.array([self.end.x, self.end.y])
-        _TR = end + vh * MAX_X_ERR[1] + vv * MAX_Y_ERR[0]
-        _BL = end - vh * MAX_X_ERR[0] - vv * MAX_Y_ERR[1]
+        _TR = end + vh * X_ALLOWANCE[1] + vv * Y_ALLOWANCE[0]
+        _BL = end - vh * X_ALLOWANCE[0] - vv * Y_ALLOWANCE[1]
         
         self.x_bounds = sorted([_TR[0], _BL[0]])
         self.y_bounds = sorted([_TR[1], _BL[1]])
@@ -161,33 +153,32 @@ class AStar:
 
     def search(
         self,
-        st: "Position",
-        end: "Position",
+        st,
+        end,
     ) -> List["Node"]:
-        end_node = Node(end, end, 0, 0)
         self.end = end
-        self.open = [Node(st.alignToGrid(), st, 0, 0)]
+        self.open = [Node(st.get_grid_position(), st, 0, 0)]
         self.open_h = {} # keep track of unique cells that are in open set
         self.closed = [] # contains nodes already explored
-        self._set_bounds()
+        self.allowable_errors()
 
         while self.open:
 
             node = heapq.heappop(self.open)
-            tup = node.pos.to_tuple()
+            tup = node.pos.position_as_tuple()
 
-            if self._goal(node.c_pos):
-                return self._reconstruct(node)
+            if self.is_goal_node(node.c_pos):
+                return self.get_full_path(node)
 
             self.closed.append(tup) # add current node to explored nodes (already visited)
-            self._expand(node) # generate successor nodes
+            self.explore(node) # generate successor nodes
         return [] # return empty array if goal is not reachable
 
 
-    def _reconstruct(
+    def get_full_path(
         self,
-        last: "Node"
-    ) -> List["Node"]:
+        last
+    ):
         res = deque()
 
         while last:

@@ -6,46 +6,46 @@ from world.obstacle import Obstacle
 from shared.constants import (
     MAP_HEIGHT,
     MAP_WIDTH,
-    OBSTACLE_WIDTH,
-    ROBOT_HEIGHT,
-    ROBOT_WIDTH,
+    OBSTACLE_SIZE,
+    ROBOT_THEORETICAL_HEIGHT,
+    ROBOT_THEORETICAL_WIDTH,
     EDGE_ERR,
-    FL_X_BOUND,
-    FL_Y_BOUND,
-    FR_X_BOUND,
-    FR_Y_BOUND,
-    BL_X_BOUND,
-    BL_Y_BOUND,
-    BR_X_BOUND,
-    BR_Y_BOUND,
-    DIST_FW,
-    DIST_BW,
-    BUFFER
+    MOVE_1_BOUND,
+    MOVE_2_BOUND,
+    MOVE_3_BOUND,
+    MOVE_4_BOUND,
+    MOVE_5_BOUND,
+    MOVE_6_BOUND,
+    MOVE_7_BOUND,
+    MOVE_8_BOUND,
+    FORWARD_DISTANCE,
+    BACKWARD_DISTANCE,
+    ALLOWANCE
 )
-from shared.enums import Movement
-from shared.types import Position
-from shared.enums import Movement
-from shared.utils import calc_vector
+from shared.enums import Action
+from shared.position import Position
+from shared.enums import Action
+from shared.vector import polar_to_vector
 
 
 class World:
     bounds = {
-        Movement.FWD: [
-            BUFFER, 
-            BUFFER + ROBOT_WIDTH,
-            BUFFER + DIST_FW + ROBOT_HEIGHT,
-            BUFFER
+        Action.FORWARD: [
+            ALLOWANCE, 
+            ALLOWANCE + ROBOT_THEORETICAL_WIDTH,
+            ALLOWANCE + FORWARD_DISTANCE + ROBOT_THEORETICAL_HEIGHT,
+            ALLOWANCE
         ],
-        Movement.BWD: [
-            BUFFER,
-            BUFFER + ROBOT_WIDTH,
-            BUFFER + ROBOT_HEIGHT,
-            BUFFER + DIST_BW
+        Action.BACKWARD: [
+            ALLOWANCE,
+            ALLOWANCE + ROBOT_THEORETICAL_WIDTH,
+            ALLOWANCE + ROBOT_THEORETICAL_HEIGHT,
+            ALLOWANCE + BACKWARD_DISTANCE
         ],
-        Movement.FWD_LEFT: FL_X_BOUND + FL_Y_BOUND,
-        Movement.FWD_RIGHT: FR_X_BOUND + FR_Y_BOUND,
-        Movement.BWD_LEFT: BL_X_BOUND + BL_Y_BOUND,
-        Movement.BWD_RIGHT: BR_X_BOUND + BR_Y_BOUND
+        Action.FORWARD_LEFT: MOVE_1_BOUND + MOVE_2_BOUND,
+        Action.FORWARD_RIGHT: MOVE_3_BOUND + MOVE_4_BOUND,
+        Action.BACKWARD_LEFT: MOVE_5_BOUND + MOVE_6_BOUND,
+        Action.BACKWARD_RIGHT: MOVE_7_BOUND + MOVE_8_BOUND
     }
 
 
@@ -53,7 +53,7 @@ class World:
         self.obstacles = obstacles
 
 
-    def is_within_map_boundary(self, x: float, y: float) -> bool:
+    def inside_world(self, x: float, y: float) -> bool:
         return (
             -EDGE_ERR <= x <= MAP_WIDTH + EDGE_ERR
             and -EDGE_ERR <= y <= MAP_HEIGHT + EDGE_ERR
@@ -62,27 +62,19 @@ class World:
     def is_valid_path(self, pos: Position, obstacles: List["Obstacle"]) -> bool:
         # Robot
         r_origin = np.array([pos.x, pos.y]) # Bottom left of robot coordinates
-        r_vec_up = calc_vector(pos.theta, ROBOT_HEIGHT) # Top left of robot coordinates
-        r_vec_right = calc_vector( # Bottom right of robot coordinates
-            pos.theta - pi / 2, ROBOT_WIDTH
+        r_vec_up = polar_to_vector(pos.theta, ROBOT_THEORETICAL_HEIGHT) # Top left of robot coordinates
+        r_vec_right = polar_to_vector( # Bottom right of robot coordinates
+            pos.theta - pi / 2, ROBOT_THEORETICAL_WIDTH
         )
 
         # Check if Robot is within the bound of the map
         if not (
-            self.is_within_map_boundary(*r_origin) # Bottom left
-            and self.is_within_map_boundary(*(r_origin + r_vec_up)) # Top left
-            and self.is_within_map_boundary(*(r_origin + r_vec_right)) # Bottom right
-            and self.is_within_map_boundary(*(r_origin + r_vec_right + r_vec_up)) # Top right
+            self.inside_world(*r_origin) # Bottom left
+            and self.inside_world(*(r_origin + r_vec_up)) # Top left
+            and self.inside_world(*(r_origin + r_vec_right)) # Bottom right
+            and self.inside_world(*(r_origin + r_vec_right + r_vec_up)) # Top right
         ):
             return False
-
-        # Robot Segments / Edges
-        r_segments = [
-            (r_origin, r_origin + r_vec_up),  # left edge (bottom left, top left)
-            (r_origin, r_origin + r_vec_right),  # btm edge (bottom left, bottom right)
-            (r_origin + r_vec_up, r_origin + r_vec_up + r_vec_right),  # top edge (top left, top right)
-            (r_origin + r_vec_right, r_origin + r_vec_right + r_vec_up),  # right edge (bottom right, top right)
-        ]
 
         # Robot Corners
         r_corners = [
@@ -93,58 +85,37 @@ class World:
         ]
 
         # For every obstacle, check if any of the 4 obstacle corners lies within the robot
-        EXTRA_VIRTUAL_BOUNDARY = 0 # To increase the virtual boundary of the obstacle (in cm)
-        # EXTRA_VIRTUAL_BOUNDARY = 5 # To increase the virtual boundary of the obstacle (in cm)
         for obs in obstacles:
             # Obstacle x and y bounds
-            o_btm = obs.y + EDGE_ERR - EXTRA_VIRTUAL_BOUNDARY
-            o_left = obs.x + EDGE_ERR - EXTRA_VIRTUAL_BOUNDARY
-            o_top = obs.y + OBSTACLE_WIDTH - EDGE_ERR + EXTRA_VIRTUAL_BOUNDARY
-            o_right = obs.x + OBSTACLE_WIDTH - EDGE_ERR + EXTRA_VIRTUAL_BOUNDARY
+            o_btm = obs.y + EDGE_ERR
+            o_left = obs.x + EDGE_ERR
+            o_top = obs.y + OBSTACLE_SIZE - EDGE_ERR
+            o_right = obs.x + OBSTACLE_SIZE - EDGE_ERR
 
             # Return False if Robot 4 corners' (x, y) is inside the obstacle (x, y) boundary
             for cx, cy in r_corners:
                 if o_left <= cx <= o_right and o_btm <= cy <= o_top:
-                    return False
-            for o_x, o_y in (
-                (o_left, o_btm),  # obstacle's btm left corner
-                (o_left, o_top),  # obstacle's top left corner
-                (o_right, o_top),  # obstacle's top right corner
-                (o_right, o_btm),  # obstacle's btm right corner
-            ):
-                crosses = 0
-                for (st_x, st_y), (end_x, end_y) in r_segments:
-                    if (st_y > o_y and end_y > o_y) or (st_y < o_y and end_y < o_y):
-                        continue
-                    
-                    if (end_x - st_x) == 0:
-                        intersect_x = st_x
-                    else:
-                        m = (end_y - st_y) / (end_x - st_x)
-                        if m == 0:
-                            intersect_x = min(st_x, end_x)
-                        else:
-                            intersect_x = st_x + (o_y - st_y) / m
-                    crosses += o_x <= intersect_x
-                if crosses == 1:
-                    return False
-        
+                    return False        
         return True
     
-    def priority_obs(
+    def images(
         self,
-        pos: "Position",
-        move: "Movement"
-    ) -> List["Obstacle"]:
-        v_t = calc_vector(pos.theta, 1)
-        v_r = calc_vector(pos.theta - pi/2, 1)
+        position,
+        movements
+    ):
+        v_t = polar_to_vector(position.theta, 1)
+        v_r = polar_to_vector(position.theta - pi/2, 1)
 
-        bounds = self.bounds[move]
-        st = np.array([pos.x, pos.y])
-        tl = st + v_t*bounds[2] - v_r*bounds[0]
-        br = st - v_t*bounds[3] + v_r*bounds[1]
+        bounds = self.bounds[movements]
 
-        x_bounds = sorted([br[0], tl[0]])
-        y_bounds = sorted([br[1], tl[1]])
+        top_left = np.array([position.x, position.y]) + v_t * bounds[2] - v_r * bounds[0]
+        bottom_right = np.array([position.x, position.y]) - v_t * bounds[3] + v_r * bounds[1]
 
-        return list(filter(lambda o:x_bounds[0]<o.middle[0]<x_bounds[1] and y_bounds[0]<o.middle[1]<y_bounds[1], self.obstacles))
+        x_min, x_max = sorted([bottom_right[0], top_left[0]])
+        y_min, y_max = sorted([bottom_right[1], top_left[1]])
+
+        return [
+            obstacle 
+            for obstacle in self.obstacles 
+            if x_min < obstacle.middle[0] < x_max and y_min < obstacle.middle[1] < y_max
+    ]

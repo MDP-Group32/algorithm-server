@@ -1,126 +1,91 @@
 import math
-from typing import List
-from shared.models import AlgorithmOutputLivePosition
-from shared.types import Position
-from pathfinding.astar import Node
+from shared.models import LiveResponsePosition
 
-def convert_segments_to_commands(
-    segments: List["Node"]
-) -> list[list[str | Position]]:
+def get_command_one(
+    segments
+):
     result = []
 
-    GRID_CELL_CM = 10
+    result = process_segments(segments)
+    resultCombined = combine_results(result)
+    
+    return update_results(resultCombined)
+
+def create_position_entry(direction, movement, distance, segment):
+    return [
+        f"{direction},-1,{movement},{distance}",
+        LiveResponsePosition(
+            x=segment.pos.x // 10,
+            y=segment.pos.y // 10,
+            d=convertThetatoNumericBearing(segment.pos.theta)
+        )
+    ]
+
+def process_segments(segments):
+    result = []
     for segment in segments:
         if segment.v == 1:
-            # PREVIOUSLY: robot move forward, and steered left (FORWARD LEFT)
             if segment.s == -1:
-                result.append([
-                    "left,77,forward,0",
-                    AlgorithmOutputLivePosition(
-                        x = segment.pos.x // GRID_CELL_CM,
-                        y = segment.pos.y // GRID_CELL_CM,
-                        d = convertThetatoNumericDirection(segment.pos.theta)
-                    )
-                ])
-            # PREVIOUSLY: robot move forward, and steered straight (FORWARD)
+                result.append(create_position_entry("left", "forward", "-1", segment))
             elif segment.s == 0:
-                result.append([
-                    "center,0,forward," + str(int(segment.d)),
-                    AlgorithmOutputLivePosition(
-                        x = segment.pos.x // GRID_CELL_CM,
-                        y = segment.pos.y // GRID_CELL_CM,
-                        d = convertThetatoNumericDirection(segment.pos.theta)
-                    )
-                ])
-            # PREVIOUSLY: robot move forward, and steered right (FORWARD RIGHT)
+                result.append(create_position_entry("center", "forward", str(int(segment.d)), segment))
             elif segment.s == 1:
-                result.append([
-                    "right,102,forward,0",
-                    AlgorithmOutputLivePosition(
-                        x = segment.pos.x // GRID_CELL_CM,
-                        y = segment.pos.y // GRID_CELL_CM,
-                        d = convertThetatoNumericDirection(segment.pos.theta)
-                    )
-                ])
+                result.append(create_position_entry("right", "forward", "-1", segment))
         elif segment.v == -1:
-            # PREVIOUSLY: robot move backward, and steered left (REVERSE LEFT)
             if segment.s == -1:
-                result.append([
-                    "left,111,reverse,0",
-                    AlgorithmOutputLivePosition(
-                        x = segment.pos.x // GRID_CELL_CM,
-                        y = segment.pos.y // GRID_CELL_CM,
-                        d = convertThetatoNumericDirection(segment.pos.theta)
-                    )
-                ])
-            # PREVIOUSLY: robot move backward, and steered straight (REVERSE)
+                result.append(create_position_entry("left", "reverse", "-1", segment))
             elif segment.s == 0:
-                result.append([
-                    "center,0,reverse," + str(int(segment.d)),
-                    AlgorithmOutputLivePosition(
-                        x = segment.pos.x // GRID_CELL_CM,
-                        y = segment.pos.y // GRID_CELL_CM,
-                        d = convertThetatoNumericDirection(segment.pos.theta)
-                    )
-                ])
-            # PREVIOUSLY: robot move backward, and steered right (REVERSE RIGHT)
+                result.append(create_position_entry("center", "reverse", str(int(segment.d)), segment))
             elif segment.s == 1:
-                result.append([
-                    "right,71,reverse,0",
-                    AlgorithmOutputLivePosition(
-                        x = segment.pos.x // GRID_CELL_CM,
-                        y = segment.pos.y // GRID_CELL_CM,
-                        d = convertThetatoNumericDirection(segment.pos.theta)
-                    )
-                ])
+                result.append(create_position_entry("right", "reverse", "-1", segment))
+    return result
 
-    resultCombined = []
-    n = 0
-    for i in range(len(result)):
-        string = result[i][0].split(',')
-        if i == 0:
-            resultCombined.append(result[i])
-            n = 0
-        elif string[0] != "center":
-            resultCombined.append(result[i])
-            n += 1
+def combine_results(result):
+    result_combined = []
+    for entry in result:
+        command, pos = entry
+        command_parts = command.split(',')
+
+        if not result_combined:
+            result_combined.append(entry)
         else:
-            prevstr = resultCombined[n][0].split(',')
-            if string[0] == prevstr[0] and string[2] == prevstr[2]:
-                new = string[0]+','+string[1]+','+string[2]+','+str(int(string[3])+int(prevstr[3]))
-                resultCombined[n] = [new, result[i][1]]
+            prev_command, prev_pos = result_combined[-1]
+            prev_parts = prev_command.split(',')
+
+            if command_parts[0] == "center" and prev_parts[:3] == command_parts[:3]:
+                new_distance = str(int(prev_parts[3]) + int(command_parts[3]))
+                result_combined[-1] = [f"{prev_parts[0]},{prev_parts[1]},{prev_parts[2]},{new_distance}", pos]
             else:
-                resultCombined.append(result[i])
-                n += 1
+                result_combined.append(entry)
+    return result_combined
+
+def truncate(direction: str, distance: int) -> int:
+    if distance == 0:
+        return 0
+    elif direction == "reverse":
+        if distance < 50:
+            return distance
+        else:
+            return distance+2
+    elif direction == "forward":
+        return distance-1
     
-    def _get_translated_straight_distance(direction: str, distance: int) -> int:
-        # For Stop Command
-        if distance == 0:
-            return 0
-        
-        if direction == "forward":
-            return distance-1
-        elif direction == "reverse":
-            if distance < 50:
-                return distance
-            else:
-                return distance+2
+def process_result(result):
+    split_result = result.split(",")
 
-    # Get translated straight distance to early/late stop the robot to get desired distance travelled
-    for i in range(len(resultCombined)):
-        result = resultCombined[i][0]
-        split_result = result.split(",")
+    # Skip if command is not a "center" command
+    if split_result[0] != "center":
+        return result
 
-        # Skip if command is a turn command
-        if split_result[0] != "center":
-            continue
+    # Update the direction and distance
+    direction, distance = split_result[2], int(split_result[3])
+    split_result[3] = str(truncate(direction, distance))
+    return ",".join(split_result)
 
-        direction, distance = split_result[2], int(split_result[3])
-        split_result[3] = str(_get_translated_straight_distance(direction, distance))
-        resultCombined[i][0] = ",".join(split_result)
-    return resultCombined
-    
-def convertThetatoNumericDirection(theta):
+def update_results(resultCombined):
+    return [[process_result(item[0])] for item in resultCombined]
+
+def convertThetatoNumericBearing(theta):
     # North
     if math.pi / 4 <= theta and theta <= 3 * math.pi / 4:
         return 1

@@ -1,6 +1,5 @@
-from shared.models import AlgorithmOutputLive, AlgorithmInput, AlgorithmOutputSimulator
-from pathfinding.get_shortest_path import get_shortest_path
-from pathfinding.hamiltonian import AlgoType
+from shared.models import LiveResponse, Settings, SimulatorResponse
+from pathfinding.fastest_path import fastest_path
 
 import multiprocessing as mp
 
@@ -27,15 +26,16 @@ app.add_middleware(
 async def healthcheck():
     return { "status": "ok" }
 
-@app.post("/algorithm/simulator/shortest_path", response_model=AlgorithmOutputSimulator, tags=["Algorithm"])
-async def algorithm_simulator(algo_input: AlgorithmInput):
-  positions = get_shortest_path(algo_input.model_dump())
-  return { "positions": positions }
 
-@app.post("/algo/live", response_model=AlgorithmOutputLive, tags=["Algorithm"])
-async def algo_live(algo_input: AlgorithmInput):
-  obstacle_orders, obstacle_order_str, string_length = get_shortest_path(algo_input.model_dump())
+@app.post("/algo/live", response_model=LiveResponse, tags=["Algorithm"])
+async def algo_live(algo_input: Settings):
+  obstacle_orders, obstacle_order_str, string_length = fastest_path(algo_input.model_dump())
   return { "path": obstacle_orders, "path_string": obstacle_order_str, "string_length": string_length }
+
+@app.post("/algorithm/simulator/shortest_path", response_model=SimulatorResponse, tags=["Algorithm"])
+async def algorithm_simulator(algo_input: Settings):
+  positions = fastest_path(algo_input.model_dump())
+  return { "positions": positions }
 
 if __name__ == '__main__':
   mp.freeze_support()

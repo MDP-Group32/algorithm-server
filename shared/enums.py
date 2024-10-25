@@ -1,19 +1,17 @@
 from enum import Enum
 
 
-class Direction(Enum):
-    """Enumeration object for obstacle's image facings"""
+class Bearing(Enum):
     NORTH = 1
     SOUTH = 2
     EAST = 3
     WEST = 4
 
 
-class Movement(Enum):
-    """Enumeration for robot's 6 possible movement directions"""
-    FWD = 1
-    BWD = 2
-    FWD_LEFT = 3
-    FWD_RIGHT = 4
-    BWD_LEFT = 5
-    BWD_RIGHT = 6
+class Action(Enum):
+    FORWARD = 1
+    BACKWARD = 2
+    FORWARD_LEFT = 3
+    FORWARD_RIGHT = 4
+    BACKWARD_LEFT = 5
+    BACKWARD_RIGHT = 6
